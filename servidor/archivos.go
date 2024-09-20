@@ -15,15 +15,17 @@ type Imagen struct {
 	Extension string
 }
 
-type ImagenContenedor struct {
+type Contenedor struct {
 	Imagenes []Imagen
+	Hostname string
+	Tema     string
 }
 
 var extensionesPermitidas = []string{".jpg", ".jpeg", ".png"}
 
 const rutaImagenes = "../estaticos/imagenes"
 
-func obtenerImagenesPorTema(tema string, cantidad int) ImagenContenedor {
+func obtenerImagenesPorTema(tema string, cantidad int) Contenedor {
 
 	archivos, err := os.ReadDir(fmt.Sprintf("%s/%s", rutaImagenes, tema))
 	if err != nil {
@@ -64,10 +66,16 @@ func obtenerImagenesPorTema(tema string, cantidad int) ImagenContenedor {
 		}
 	}
 
-	// retornar un slice de ImageContainer con las imagenes
-	imagenContenedor := ImagenContenedor{Imagenes: imagenesElegidas}
+	hostame, _ := os.Hostname()
 
-	return imagenContenedor
+	// retornar un slice de ImageContainer con las imagenes
+	Contenedor := Contenedor{
+		Imagenes: imagenesElegidas,
+		Hostname: hostame,
+		Tema:     tema,
+	}
+
+	return Contenedor
 }
 
 func tieneIndicesRepetidos(imagenes []Imagen, indice int) bool {
