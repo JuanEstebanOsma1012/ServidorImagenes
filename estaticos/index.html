@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Inicio</title>
+    <link rel="stylesheet" type="text/css" href="css/estilos.css">
+</html>
+<body>
+    <header>
+        <h1>Servidor de Imágenes</h1>
+    </header>
+    <main>
+        {{range .Imagenes}}
+        <div class="image_container">
+            <p class="titular">{{.Nombre}}</p>
+            <img class="imagen" src="data:image/{{.Extension}};base64, {{.Contenido}}" alt="{{.Nombre}}">
+        </div>
+        {{end}}
+    </main>
+    <footer>
+        <div>Computacion en la nube</div>
+        <div>Juan Esteban Castaño Osma</div>
+        <div>2024-1</div>
+    </footer>
+</body>

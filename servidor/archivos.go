@@ -8,113 +8,109 @@ import (
 	"path/filepath"
 )
 
-type Image struct {
-	Name    string
-	Content string
-	Index   int
+type Imagen struct {
+	Nombre    string
+	Contenido string
+	Indice    int
+	Extension string
 }
 
-var allowedExtensions = []string{".jpg", ".jpeg", ".png"}
-
-const (
-	imagesPath = "../estaticos/imagenes"
-)
-
-func main() {
-	// obtener las imagenes de un tema
-	images := getImagesByTopic("animales", 2)
-
-	fmt.Println("Imagenes obtenidas:")
-
-	for _, image := range images {
-		fmt.Println(image)
-	}
+type ImagenContenedor struct {
+	Imagenes []Imagen
 }
 
-func getImagesByTopic(topic string, number int) []Image {
+var extensionesPermitidas = []string{".jpg", ".jpeg", ".png"}
 
-	files, err := os.ReadDir(fmt.Sprintf("%s/%s", imagesPath, topic))
+const rutaImagenes = "../estaticos/imagenes"
+
+func obtenerImagenesPorTema(tema string, cantidad int) ImagenContenedor {
+
+	archivos, err := os.ReadDir(fmt.Sprintf("%s/%s", rutaImagenes, tema))
 	if err != nil {
 		panic(err)
 	}
 
-	filesFilter := filter(files, func(file os.DirEntry) bool {
-		return isImage(file)
+	imagenes := filter(archivos, func(archivo os.DirEntry) bool {
+		return esImagen(archivo)
 	})
 
-	if len(filesFilter) < number {
-		panic(fmt.Sprintf("No hay suficientes imagenes en el tema %s", topic))
+	if len(imagenes) < cantidad {
+		panic(fmt.Sprintf("No hay suficientes imagenes en el tema %s", tema))
 	}
 
-	var images []Image
+	var imagenesElegidas []Imagen
 
-	for i := 0; i < number; {
+	for i := 0; i < cantidad; {
 
 		// obtener un numero aleatorio entre 0 y la cantidad de archivos
-		randomIndex := rand.Intn(len(filesFilter))
+		indiceAleatorio := rand.Intn(len(imagenes))
 
 		// verificar si el archivo es una imagen
-		if !isIndexRepeated(images, randomIndex) {
+		if !tieneIndicesRepetidos(imagenesElegidas, indiceAleatorio) {
 
-			file := filesFilter[randomIndex]
+			imagen := imagenes[indiceAleatorio]
 
-			if isImage(file) {
+			// convertir la imagen a base64
+			imagenEncriptada := convertirABase64(fmt.Sprintf("%s/%s/%s", rutaImagenes, tema, imagen.Name()))
+			// agregar la imagen al slice de imagenes
+			imagenesElegidas = append(imagenesElegidas, Imagen{
+				Nombre:    imagen.Name(),
+				Contenido: imagenEncriptada,
+				Indice:    indiceAleatorio,
+				Extension: obtenerExtension(imagen),
+			})
 
-				// convertir la imagen a base64
-				image := convertImageToBase64(fmt.Sprintf("%s/%s/%s", imagesPath, topic, file.Name()))
-				// agregar la imagen al slice de imagenes
-				images = append(images, Image{
-					Name:    file.Name(),
-					Content: image,
-					Index:   randomIndex,
-				})
-
-				i++
-
-			}
+			i++
 		}
 	}
 
-	return images
+	// retornar un slice de ImageContainer con las imagenes
+	imagenContenedor := ImagenContenedor{Imagenes: imagenesElegidas}
+
+	return imagenContenedor
 }
 
-func isIndexRepeated(images []Image, index int) bool {
-	for _, image := range images {
-		if image.Index == index {
+func tieneIndicesRepetidos(imagenes []Imagen, indice int) bool {
+	for _, imagen := range imagenes {
+		if imagen.Indice == indice {
 			return true
 		}
 	}
 	return false
 }
 
-func isImage(file os.DirEntry) bool {
-	if file.IsDir() {
+func esImagen(archivo os.DirEntry) bool {
+	if archivo.IsDir() {
 		return false
 	}
 
-	for _, extension := range allowedExtensions {
-		if extension == filepath.Ext(file.Name()) {
+	for _, extension := range extensionesPermitidas {
+		if extension == obtenerExtension(archivo) {
 			return true
 		}
 	}
 	return false
 }
 
-func convertImageToBase64(completePath string) string {
-	image, err := os.Open(completePath)
+func obtenerExtension(archivo os.DirEntry) string {
+	return filepath.Ext(archivo.Name())
+}
+
+func convertirABase64(rutaCompleta string) string {
+	imagen, err := os.Open(rutaCompleta)
 	if err != nil {
 		panic(err)
 	}
-	defer image.Close()
+	defer imagen.Close()
 
-	fileInfo, _ := image.Stat()
+	fileInfo, _ := imagen.Stat()
 	size := fileInfo.Size()
 	buffer := make([]byte, size)
 
-	image.Read(buffer)
-	imageBase64 := base64.StdEncoding.EncodeToString(buffer)
+	imagen.Read(buffer)
+	imagenBase64 := base64.StdEncoding.EncodeToString(buffer)
 
-	return imageBase64
+	return imagenBase64
 }
 
 func filter(ss []os.DirEntry, test func(os.DirEntry) bool) (ret []os.DirEntry) {
