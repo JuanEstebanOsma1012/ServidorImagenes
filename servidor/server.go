@@ -24,7 +24,7 @@ func getImages(w http.ResponseWriter, r *http.Request) {
 	tema := os.Args[2]
 	cantidadImagenes, _ := strconv.Atoi(os.Args[3])
 
-	tmpl, _ := template.ParseFiles("../estaticos/index.html")
+	tmpl, _ := template.ParseFiles("../estaticos/index2.html")
 	tmpl.Execute(w, obtenerImagenesPorTema(tema, cantidadImagenes))
 
 }
