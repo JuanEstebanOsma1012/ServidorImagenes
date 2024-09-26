@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
+	"math/rand"
 	"net/http"
 	"os"
 	"strconv"
@@ -24,7 +26,9 @@ func getImages(w http.ResponseWriter, r *http.Request) {
 	tema := os.Args[2]
 	cantidadImagenes, _ := strconv.Atoi(os.Args[3])
 
-	tmpl, _ := template.ParseFiles("../estaticos/index2.html")
+	randomNumber := rand.Intn(2)
+
+	tmpl, _ := template.ParseFiles(fmt.Sprintf("../estaticos/index%d.html", randomNumber+1))
 	tmpl.Execute(w, obtenerImagenesPorTema(tema, cantidadImagenes))
 
 }

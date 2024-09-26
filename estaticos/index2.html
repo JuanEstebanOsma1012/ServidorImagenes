@@ -70,9 +70,6 @@
                 {{range $index, $imagen := .Imagenes}}
                 <div class="carousel-item {{if eq $index 0}}active{{end}}">
                     <img src="data:image/{{.Extension}};base64, {{.Contenido}}" class="d-block w-100" alt="{{.Nombre}}">
-                    <div class="carousel-caption">
-                        <h5>{{.Nombre}}</h5> <!-- Caption ahora visible debajo de la imagen -->
-                    </div>
                 </div>
                 {{end}}
             </div>
